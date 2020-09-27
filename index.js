@@ -1,28 +1,69 @@
-module.exports = function AFKer(mod) {
-	let lastTimeMoved = Date.now();
-	const settings = mod.settings,
-		command = mod.command;
+module.exports = function retaliate(mod) {
+    const command = mod.command;
+    const settings = mod.settings;
 
-	mod.hook('C_PLAYER_LOCATION', 5, (event) => {
-		if([0,1,5,6].indexOf(event.type) > -1) { // running / walking / jumping / jumping
-			lastTimeMoved = Date.now();
-		}
-	})
+    let RETALIATE = {
+            reserved: 0,
+            npc: false,
+            type: 1,
+            huntingZoneId: 0,
+            id: 0
+        },
+        RETALIATE_IDs = [
+            131000, // Warrior
+            111000, // Lancer
+            101000, // Slayer
+            103000, // Berserker
+            141000, // Sorcerer
+            141000, // Archer
+            251000, // Priest
+            211000, // Mystic
+            140300, // Reaper
+            201000, // Gunner
+            121000, // Brawler
+            101000, // Ninja
+            181099, // Valkyrie
+        ];
+        command.add('ar', {
+            $default() {
+                settings.enabled = !settings.enabled;
+                command.message(`${settings.enabled ? 'En' : 'Dis'}abled`);
+            }
+        });
 
-	mod.hook('C_RETURN_TO_LOBBY', 'raw', () => {
-		if (settings.enabled && Date.now() - lastTimeMoved >= 3600000) return false; // Prevents you from being automatically logged out while AFK
-	})
+    let w,
+        loc,
+        dest,
+        job,
+        templateId;
 
-	command.add('afker', {
-		$default() {
-			settings.enabled = !settings.enabled;
-			mod.saveSettings();
-			command.message(`${settings.enabled ? 'En' : 'Dis'}abled`);
-		}
-	});
+    mod.hook('S_LOGIN', 14, (event) => {
+        job = (event.templateId - 10101) % 100;
+        RETALIATE.id = RETALIATE_IDs[job];
+        templateId = event.templateId;
+    });
 
-	this.destructor = () => {
-		lastTimeMoved = null;
-		command.remove('afker');
-	}
-}
+    mod.hook('C_PLAYER_LOCATION', 5, (event) => {
+        w = event.w;
+        loc = event.loc;
+        dest = event.dest;
+    });
+
+    mod.hook('S_EACH_SKILL_RESULT', 14, (event) => {
+        if (settings.enabled && event.reaction.skill.id !== (templateId * 100) + 2)
+            return;
+
+        mod.send('C_START_SKILL', 7, {
+                skill: RETALIATE,
+                w: w,
+                loc: loc,
+                dest: dest,
+                unk: true,
+                moving: false,
+                cont: false,
+                target: 0,
+                unk2: false
+            }
+        );
+    });
+};
