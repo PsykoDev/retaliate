@@ -1,0 +1,15 @@
+{
+    "disableAutoUpdate": false,
+    "name": "retaliate",
+    "author": "PsykoDev",
+    "description": "blap",
+    "options": {
+        "niceName": "retaliate",
+        "guiName": "retaliate",
+        "reloadable": true,
+        "settingsVersion": 98.2,
+        "settingsFile": "config.json",
+        "settingsMigrator": "settings_migrator.js"
+    },
+    "servers": ["https://raw.githubusercontent.com/PsykoDev/retaliate/master/"]
+}
