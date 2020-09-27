@@ -1,7 +1,6 @@
 {
     "version": 98.2,
     "data": {
-        "enabled": true,
-        "logs": false
+        "enabled": true
     }
 }
