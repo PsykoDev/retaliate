@@ -13,7 +13,7 @@ module.exports = function retaliate(mod) {
             131000, // Warrior
             111000, // Lancer
             101000, // Slayer
-            103000, // Berserker
+            131000, // Berserker
             141000, // Sorcerer
             141000, // Archer
             251000, // Priest
@@ -50,7 +50,8 @@ module.exports = function retaliate(mod) {
     });
 
     mod.hook('S_EACH_SKILL_RESULT', 14, (event) => {
-        if (settings.enabled && event.reaction.skill.id !== (templateId * 100) + 2)
+        if (settings.enabled) return;
+        if (event.reaction.skill.id !== (templateId * 100) + 2)
             return;
 
         mod.send('C_START_SKILL', 7, {
